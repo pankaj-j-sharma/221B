@@ -68,7 +68,7 @@ class MyExcelParser:
             tmp_item = {}
             for col in range(self.ncols):
                 val = self.sheet.cell_value(row, col)
-                if col < cnum:  # running the loop for the columns prioir to item header
+                if col < cnum:  # running the loop for the columns prior to item header
                     if val and str(val).startswith('-'*10):
                         return items  # exit when atleast 10 dashes are encountered
                     continue  # skipping the part below to run for the column before where LineNumber starts

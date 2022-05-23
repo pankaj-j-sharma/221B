@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 import xlrd
 from datetime import datetime
 from pprint import pprint
@@ -15,11 +16,12 @@ class MyExcelParser:
                        "LineNumber", "PartNumber", "Description", "Item Type", "Price"]
 
     def load_file(self):
-        self.wb = xlrd.open_workbook(self.file_path)
+        self.wb = xlrd.open_workbook(
+            self.file_path, logfile=open(os.devnull, 'w'))
         self.sheet = self.wb.sheet_by_index(0)
         self.nrows = self.sheet.nrows
         self.ncols = self.sheet.ncols
-        self.__parse_data()
+        return self.__parse_data()
 
     def __parse_data(self):
         result = {}
@@ -53,7 +55,7 @@ class MyExcelParser:
                         result['Items'] = [
                             item for item in self.__parse_item_data(row, col) if item]
 
-        self.__build_output(result)
+        return self.__build_output(result)
 
     '''
         method to parse the items row by row as per the input excel
@@ -127,12 +129,33 @@ class TestExcelParser(unittest.TestCase):
     def test_parsed_data(self):
         path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
         parser = MyExcelParser(path)
-        self.assertTrue(parser.load_file,
-                        "Expected true ")
+        output_log = {
+            "Quote": 98765.0,
+            "Date": "2019-01-14",
+            "Items":
+            [
+                {
+                    "LineNumber": 1.0,
+                    "PartNumber": "ABC",
+                    "Description": "Very Good",
+                    "Price": 200.2
+                },
+                {
+                    "LineNumber": 2.0,
+                    "PartNumber": "DEF",
+                    "Description": "Not so good",
+                    "Price": 100.1
+                }
+            ]
+        }
+
+        output = parser.load_file()
+        self.assertEqual(Counter(output), Counter(output_log),
+                         "Expected the output should match the log data ")
 
 
 if __name__ == '__main__':
-    path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
-    parser = MyExcelParser(path)
-    parser.load_file()
-    # unittest.main()
+    # path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
+    # parser = MyExcelParser(path)
+    # output = parser.load_file()
+    unittest.main()

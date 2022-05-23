@@ -3,6 +3,7 @@ import xlrd
 from datetime import datetime
 from pprint import pprint
 import unittest
+import json
 
 
 # 1. EXCEL PARSING - TEST#1
@@ -99,7 +100,26 @@ class MyExcelParser:
                     else:
                         response[key] = value
 
-        print(response)
+        self.__print_debug_data(response, 'output json', format='json')
+        return response
+
+    def __print_debug_data(self, data, message=None, format=None):
+        print('-'*100)
+        print(message)
+        if format and format == 'json':
+            # pretty printing the dictionary to screen
+            print(json.dumps(data, indent=3))
+        else:
+            if type(data) == dict:
+                for d in data:
+                    if type(data[d]) == list:
+                        for l in data[d]:
+                            self.__print_debug_data(l, str(d))
+                    else:
+                        print(d, ':', data[d])
+            else:
+                print(data)
+        print('\n')
 
 
 class TestExcelParser(unittest.TestCase):
@@ -108,11 +128,11 @@ class TestExcelParser(unittest.TestCase):
         path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
         parser = MyExcelParser(path)
         self.assertTrue(parser.load_file,
-                        "Expected apple to be consumed")
+                        "Expected true ")
 
 
 if __name__ == '__main__':
-    # path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
-    # parser = MyExcelParser(path)
-    # parser.load_file()
-    unittest.main()
+    path = os.path.join(os.getcwd(), 'ToParse_Python .xlsx')
+    parser = MyExcelParser(path)
+    parser.load_file()
+    # unittest.main()
